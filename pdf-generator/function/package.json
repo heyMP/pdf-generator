@@ -1,7 +1,7 @@
 {
-  "name": "elmsln-service-mooc-pdf",
+  "name": "pdf-generator",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "handler.js",
   "license": "Apache-2.0",
   "dependencies": {
     "case": "^1.6.1",
@@ -14,6 +14,7 @@
     "mocha": "^6.1.4"
   },
   "scripts": {
+    "yep": "yep",
     "test": "mocha"
   }
 }

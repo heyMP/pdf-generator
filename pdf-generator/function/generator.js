@@ -1,19 +1,8 @@
 const puppeteer = require('puppeteer')
-const path = require('path')
-const Case = require('case')
-const URL = require('url')
 const Minio = require('minio')
 const memoryStreams = require('memory-streams');
 const hummus = require('hummus');
 const uuid = require('uuid/v1');
-
-var minioClient = new Minio.Client({
-  endPoint: 'localhost',
-  port: 9001,
-  useSSL: false,
-  accessKey: 'minio',
-  secretKey: 'minio123'
-})
 
 /**
  * list of urls to snapshot
@@ -22,13 +11,34 @@ var minioClient = new Minio.Client({
  */
 module.exports = async (urls, options = {}) => {
   const title = options.title || uuid()
+  const bucket = options.bucket || 'pdf-export'
+  // make sure the bucket exists in minio
   const snapshots = await Promise.all(urls.map(url => takeScreenshot(url)))
   const pdfBuffer = await combinePDFBuffers(snapshots)
-  try {
-    const minioupload = minioClient.putObject('general', `pdf-snapshot-${title}.pdf`, pdfBuffer)
-    return minioupload
-  } catch (error) {
-    return error
+  // if the user didn't choose to get a url
+  if (typeof options.url === 'undefined') {
+    return pdfBuffer
+  }
+  else {
+    try {
+      var minioClient = new Minio.Client({
+        endPoint: 'localhost',
+        port: 9001,
+        useSSL: false,
+        accessKey: 'minio',
+        secretKey: 'minio123'
+      })
+      const filename = `${title}.pdf`
+      if (!await minioClient.bucketExists(bucket)) {
+        await minioClient.makeBucket(bucket)
+      }
+      const minioupload = await minioClient.putObject(bucket, filename, pdfBuffer)
+      const url = await minioClient.presignedGetObject(bucket, title, 24*60*60)
+      return url
+      return
+    } catch (error) {
+      return error
+    }
   }
 }
 
@@ -37,7 +47,17 @@ module.exports = async (urls, options = {}) => {
  * @param {string} url 
  */
 const takeScreenshot = async (url, options = {}) => {
-  const browser = await puppeteer.launch({ headless: true });
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: [
+      '--no-sandbox',
+      '--disable-gpu',
+      '--disable-setuid-sandbox',
+      '--single-process',
+      '--headless',
+      `--remote-debugging-port=9222`
+   ]
+  });
   const page = await browser.newPage();
   await page.goto(url);
   buffer = await page.pdf({ fullPage: true });
