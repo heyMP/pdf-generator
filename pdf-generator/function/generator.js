@@ -20,25 +20,26 @@ module.exports = async (urls, options = {}) => {
     return pdfBuffer
   }
   else {
-    try {
-      var minioClient = new Minio.Client({
-        endPoint: 'localhost',
-        port: 9001,
-        useSSL: false,
-        accessKey: 'minio',
-        secretKey: 'minio123'
-      })
-      const filename = `${title}.pdf`
-      if (!await minioClient.bucketExists(bucket)) {
-        await minioClient.makeBucket(bucket)
-      }
-      const minioupload = await minioClient.putObject(bucket, filename, pdfBuffer)
-      const url = await minioClient.presignedGetObject(bucket, title, 24*60*60)
-      return url
-      return
-    } catch (error) {
-      return error
-    }
+    // needs work
+    // try {
+    //   var minioClient = new Minio.Client({
+    //     endPoint: 'localhost',
+    //     port: 9001,
+    //     useSSL: false,
+    //     accessKey: 'minio',
+    //     secretKey: 'minio123'
+    //   })
+    //   const filename = `${title}.pdf`
+    //   if (!await minioClient.bucketExists(bucket)) {
+    //     await minioClient.makeBucket(bucket)
+    //   }
+    //   const minioupload = await minioClient.putObject(bucket, filename, pdfBuffer)
+    //   const url = await minioClient.presignedGetObject(bucket, title, 24*60*60)
+    //   return url
+    //   return
+    // } catch (error) {
+    //   return error
+    // }
   }
 }
 

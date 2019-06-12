@@ -15,9 +15,7 @@ class Routing {
 
     configure() {
         const bodyParser = require('body-parser')
-        this.app.use(bodyParser.json());
-        this.app.use(bodyParser.raw());
-        this.app.use(bodyParser.text({ type : "text/*" }));
+        this.app.use(bodyParser.json({ type: "*/*" }));
         this.app.disable('x-powered-by');        
     }
 
@@ -30,18 +28,32 @@ class Routing {
     }
 
     async handle(req, res) {
-      if (req.body && typeof req.body !== 'undefined') {
-        if (typeof req.body === 'string') {
-          const body = req.body
-          const urls = body.split(',').map(i => i.trim())
-          if (urls.length > 0) {
-            const pdfBuffer = await generator(urls)
+      const body = req.body || {}
+      const query = req.query || {}
+      const options = Object.assign({}, body, query)
+
+      if (typeof options.urls !== 'undefined') {
+        let url = options.urls
+        // if the url is a string then we need to convert
+        // to an array
+        if (typeof url === 'string') {
+          url = url.split(',').map(i => i.trim())
+        }
+        if (url.length > 0) {
+          try {
+            const pdfBuffer = await generator(url)
+            res.set({ 'Content-Type': 'application/pdf', 'Content-Length': pdfBuffer.length })
             res.send(pdfBuffer);
+          } catch (error) {
+            res.send('Unable to generator pdf.')
           }
         }
         else {
-          res.send('No urls were found.')
+          res.send('No urls found.');
         }
+      }
+      else {
+        res.send('No urls found.');
       }
     }
 }
