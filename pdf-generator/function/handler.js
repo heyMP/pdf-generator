@@ -1,6 +1,7 @@
 "use strict"
 
 const generator = require('./generator.js')
+const cors = require('cors')
 
 module.exports = async (config) => {
     const routing = new Routing(config.app);
@@ -16,6 +17,7 @@ class Routing {
     configure() {
         const bodyParser = require('body-parser')
         this.app.use(bodyParser.json({ type: "*/*" }));
+        this.app.use(cors())
         this.app.disable('x-powered-by');        
     }
 

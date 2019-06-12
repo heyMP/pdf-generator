@@ -8,7 +8,8 @@
     "puppeteer": "^1.17.0",
     "minio": "^7.0.8",
     "memory-streams": "^0.1.3",
-    "hummus": "^1.0.104"
+    "hummus": "^1.0.104",
+    "cors": "^2.8.5"
   },
   "devDependencies": {
     "mocha": "^6.1.4"

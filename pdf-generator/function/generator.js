@@ -60,7 +60,7 @@ const takeScreenshot = async (url, options = {}) => {
    ]
   });
   const page = await browser.newPage();
-  await page.goto(url);
+  await page.goto(url, { waitUntil: 'networkidle0' });
   buffer = await page.pdf({ fullPage: true });
   await browser.close();
   return buffer

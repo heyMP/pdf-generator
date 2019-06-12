@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    fetch("http://localhost:8080/function/pdf-generator?urls=http://google.com", {
+      headers: {
+        'Accept': 'application/pdf',
+        'Content-Type': 'application/json'
+      },
+      method: 'POST',
+      responseType: 'arraybuffer',
+    })
+      .then(res => {
+        const blob = new Blob([res.data], {type: 'application/pdf'})
+        const link = document.createElement('a')
+        link.href = window.URL.createObjectURL(blob)
+        link.download = `your-file-name.pdf`
+        link.click()
+      })
+  </script>
+</body>
+</html>
