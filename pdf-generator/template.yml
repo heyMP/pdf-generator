@@ -1,2 +1,2 @@
-language: node10-express-service
+language: Dockerfile
 fprocess: node index.js
